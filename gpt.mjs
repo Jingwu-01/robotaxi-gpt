@@ -20,6 +20,8 @@ const openai = new OpenAI({
 const BACKEND_BASE_URL = 'http://localhost:5000';
 
 async function fetchAllData() {
+
+  // Fetch data from all endpoints
   try {
     const endpoints = [
       '/status',
@@ -43,6 +45,7 @@ async function fetchAllData() {
 
     const data = {};
 
+    // Store data in an object with keys as endpoint names
     endpoints.forEach((endpoint, index) => {
       const key = endpoint.replace('/', '');
       data[key] = responses[index].data;
@@ -56,11 +59,16 @@ async function fetchAllData() {
 }
 
 app.post("/", async (req, res) => {
+  // Get the message from the user
   const message = req.body.message;
   conversationHistory.push({ role: "user", content: message });
+
+  // Fetch data from all endpoints
   const data = await fetchAllData();
   const dataString = JSON.stringify(data, null, 4);
   console.log(dataString);
+
+  // Send the message to the OpenAI API
   const response = await openai.chat.completions.create({
     model: "o1-mini",
     messages: [
@@ -314,6 +322,7 @@ ${message}`}
 
   conversationHistory.push({ role: "assistant", content: response.choices[0].message.content });
 
+  // Send the response back to the user
   res.json({
     message: response.choices[0].message.content,
   });
